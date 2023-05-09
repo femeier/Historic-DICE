@@ -1,0 +1,37 @@
+! Header (38 lines)
+!
+! Global CO2 concentration (ppm)
+! Prepared by C Le Quéré and M W Jones for the Global Carbon Project, 1 Jun 2021
+! This dataset is intended to be used as atmospheric forcing for modelling the evolution of carbon sinks
+!
+! Data from March 1958 are monthly average from MLO and SPO
+! provided by NOAA's Earth System Research Laboratory (ESRL)
+! http://www.esrl.noaa.gov/gmd/ccgg/trends/
+! When no SPO data are available (including prior to 1975), SPO is constructed from the 1976-2014 average 
+! MLO-SPO trend and average monthly departure
+! The last year of data are still preliminary, pending re-calibrations of reference gases and other quality control checks.
+! Data prior to March 1958 are estimated with a cubic spline fit to ice core data from
+! Joos and Spahni 2008 Rates of change in natural and anthropogenic radiative
+! forcing over the past 20,000 years PNAS
+!
+! ~~~~~
+!
+! GCB2021 SPECIAL NOTICE:
+!
+! All models should be run with full simulations (not only the past year) due to important changes to SPO and MLO input data
+! used to produce this atmospheric CO2 forcing.
+!
+! In 2020, CO2 measurements from flask-air samples were recalculated by NOAA ESRL onto the X2019 CO2 mole fraction scale by 
+! reassigning all standards used on the CO2 analysis systems to X2019. A detailed description of the scale revision from X2007 
+! to X2019 is given in Hall et al. (https://doi.org/10.5194/amt-14-3015-2021). The magnitude of the differences between X2019 
+! and X2007 varies with CO2 abundance (and thus with time), reaching +0.3 ppm for SPO and +0.2 ppm for MLO. The largest 
+! differences are influenced by a previously mis-assigned standard on the system used to transfer the scale to working 
+! standards. Measurements prior to ~1980 from early analytical systems (instrument codes LR1 and LR2) could not be reprocessed 
+! onto X2019; they remain on a CO2 scale originally developed at Scripps Institution of Oceanography.
+!
+! Hall, B. D., Crotwell, A. M., Kitzis, D. R., Mefford, T., Miller, B. R., Schibig, M. F., 
+! and Tans, P. P.: Revision of the World Meteorological Organization Global Atmosphere Watch 
+! (WMO/GAW) CO2 calibration scale, Atmos. Meas. Tech., 14, 3015–3032, 
+! https://doi.org/10.5194/amt-14-3015-2021, 2021.
+!
+! The 0.2-0.3 ppm shifts in SPO and MLO propagate to the global CO2 forcing provided here.

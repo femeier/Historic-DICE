@@ -1,0 +1,1 @@
+The file "calibration_gross_output_climateimpacts" derives for all three impact functions from net (i.e. observed) output the theoretical gross output. Gross output is used to calculate the historical emission intensity and the total factor productivity. 

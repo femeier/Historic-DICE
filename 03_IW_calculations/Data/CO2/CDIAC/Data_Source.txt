@@ -1,0 +1,3 @@
+The data was obtain from https://data.ess-dive.lbl.gov/view/doi:10.15485/1712447
+and the reference is 
+Gilfillan D ; Marland G ; Boden T ; Andres R (2020): Global, Regional, and National Fossil-Fuel CO2 Emissions: 1751-2017. CDIAC-FF, Research Institute for Environment, Energy, and Economics, Appalachian State University. doi:10.15485/1712447

@@ -1,0 +1,8 @@
+European Environmental Agency
+Global and European temperatures
+https://www.eea.europa.eu/data-and-maps/indicators/global-and-european-temperature-10/assessment
+
+which contains the data sources:
+HadCRUT4 (Morice et al., 2012): This dataset is a collaborative product of the Met Office Hadley Centre and the Climatic Research Unit (CRU) of the University of East Anglia.
+NOAA Global Temp v5 (Karl et al., 2015; Zhang et al., 2019): This dataset is a product of the National Centre for Environmental Information of the U.S. National Oceanic and Atmospheric Administration (NOAA).
+GISTEMP v4 (Lenssen et al., 2019): This dataset is a product of the NASA Goddard Institute for Space Studies (GISS).
