@@ -1,0 +1,283 @@
+reset;
+
+option solver knitroampl;
+#option knitro_options "algorithm=2 bar_switchrule=2 maxit=3000 bar_murule=4 bar_initpt=3 bar_penaltyrule=2 #bar_penaltycons=1 linsolver=2";
+#tuner=1";
+option knitro_options "algorithm=1 bar_initpt=3 bar_murule=4 bar_penaltycons=1 bar_penaltyrule=2 bar_switchrule=2 linsolver=2";
+model DICE2016_Fair_Geoffroy_SCC.mod;
+
+
+#param n:=2; #number of iterations; needs to be 2018-1959: 59
+
+param scen:=6;
+let i:={1..scen};
+let gamma:=0.36507;
+let deltaK:=0.0369791;
+let rho:=1.1/100; #0; #0.00176; #0.0023;
+let eta:=1.35; #029; #1.003;
+let Psi:=0; #0.00236; # damage quadratic term 
+let Psi2:=0.007438;
+let Psi3:=0;
+let Tbar:=5;
+
+
+#param a{f}>0;
+#param b{f}>0;
+
+#Time Series of initial values
+param Qgross0ini{f}>=0; 
+param K0ini{f}>=0; 		
+param I0ini{f}>=0;
+param R10ini{f}>=0; 		
+param R20ini{f}>=0; 		
+param R30ini{f}>=0; 		
+param R40ini{f}>=0; 		
+param CCA0ini{f}>=0;		
+param TMF0ini{f}; 		
+param TMS0ini{f};		
+param TDF0ini{f};		
+param TDS0ini{f};		
+param alpha0ini{f}>=0; 	
+param dalpha0ini{f}>=0; 	
+param EInd0ini{f}>=0;
+
+table params IN "amplxl" "mu_observed.xlsx" "params":f<- [f], year, muo;
+table inis IN "amplxl" "startvalues_Sterner.xlsx" "inis":f<- [f], Qgross0ini, K0ini, I0ini, R10ini, R20ini, R30ini, R40ini, CCA0ini, TMF0ini, TMS0ini, TDF0ini, TDS0ini, alpha0ini, dalpha0ini, EInd0ini;
+
+load amplxl.dll;
+
+read table params;
+read table inis;
+
+table L_params IN "amplxl" "L_external.xlsx"  "2D": [f, i], L;
+
+read table L_params;
+
+
+table A_params IN "amplxl" "TFP_Sterner_external.xlsx"  "2D": [f, i], A;
+
+read table A_params;
+
+table sigma_params IN "amplxl" "sigma_Sterner_external.xlsx"  "2D": [f, i], sigma;
+
+read table sigma_params;
+
+table pback_params IN "amplxl" "pback_external.xlsx"  "2D": [f, i], pback;
+
+read table pback_params;
+
+table Fex_params IN "amplxl" "F_external.xlsx"  "2D": [f, i], Fex;
+
+read table Fex_params;
+
+table Eland_params IN "amplxl" "EL_external.xlsx"  "2D": [f, i], Eland;
+
+read table Eland_params;
+
+#table deltaK_params IN "amplxl" "deltaK_external.xlsx"  "2D": [f, i], deltaK;
+
+#read table deltaK_params;
+
+#let Qgross0:=Qgross0ini[0]; 
+let K0:=K0ini[0]; 		
+let I0:=I0ini[0];
+let R10:=R10ini[0]; 		
+let R20:=R20ini[0]; 		
+let R30:=R30ini[0]; 		
+let R40:=R40ini[0]; 		
+let CCA0:=CCA0ini[0];		
+let TMF0:=TMF0ini[0]; 		
+let TMS0:=TMS0ini[0];		
+let TDF0:=TDF0ini[0];		
+let TDS0:=TDS0ini[0];		
+let alpha0:=alpha0ini[0]; 	
+let dalpha0:=dalpha[0]; 	
+
+let j:=0;
+
+param sccresults {f,i};
+
+
+param sccpresults {f,i};
+
+param Kresults{f,i};
+param Eresults{f,i};
+param muresults{f,i};
+param Iresults{f,i};
+param Catmresults{f,i};
+param Tempresults{f,i};
+
+param Cresults{f,i};
+param Qgresults{f,i};
+param Qnresults{f,i};
+
+
+for {a in i}
+{
+let n:=a;
+solve;
+fix {t in 1..68} I[t]:=I0ini[t];
+fix {t in 0..68} mu[t]:=muo[t];
+let mu[69]:=0.636635; #muswitch[a];
+let I[69]:=37.823254; #Iswitch[3];
+solve;
+
+for {t in 0..T-1} let sccresults[t,a]:=-(1000/(3.664*2.12))*(a1*R1step[t]+a2*R2step[t]+a3*R3step[t]+a4*R4step[t])/(1000^(1-eta)*(C[t]/L[t,a])^(-eta)*R[t]);
+for {t in 0..T-1} let sccpresults[t,a]:=-(1000/(3.664*2.12))*(a1*R1step[t]+a2*R2step[t]+a3*R3step[t]+a4*R4step[t])/(1000^(1-eta)*(C[68]/L[68,a])^(-eta)*R[68]);
+for {t in 0..T-1} let Kresults[t,a]:=K[t];
+for {t in 0..T-1} let Eresults[t,a]:=EInd[t]/3.664;
+for {t in 0..T-1} let muresults[t,a]:=mu[t];
+for {t in 0..T-1} let Iresults[t,a]:=I[t];
+for {t in 0..T-1} let Catmresults[t,a]:=Catm[t];
+for {t in 0..T-1} let Tempresults[t,a]:=TempIm[t];
+for {t in 0..T-1} let Cresults[t,a]:=C[t];
+for {t in 0..T-1} let Qgresults[t,a]:=Qgross[t];
+for {t in 0..T-1} let Qnresults[t,a]:=Q[t];
+
+}
+
+load amplxl.dll;
+
+table KHS OUT "amplxl" "2D":[f,i], Kresults;
+write table KHS;
+
+table CHS OUT "amplxl" "2D":[f,i], Cresults;
+write table CHS;
+
+table InvHS OUT "amplxl" "2D":[f,i], Iresults;
+write table InvHS;
+
+table QgHS OUT "amplxl" "2D":[f,i], Qgresults;
+write table QgHS;
+
+table QnHS OUT "amplxl" "2D":[f,i], Qnresults;
+write table QnHS;
+
+table sccHS OUT "amplxl" "2D":[f,i], sccresults;
+write table sccHS;
+
+table sccHSp OUT "amplxl" "2D":[f,i], sccpresults;
+write table sccHSp;
+
+table EHS OUT "amplxl" "2D":[f,i], Eresults;
+write table EHS;
+
+table CatmHS OUT "amplxl" "2D":[f,i], Catmresults;
+write table CatmHS;
+
+table TempHS OUT "amplxl" "2D":[f,i], Tempresults;
+write table TempHS;
+
+param weight{i};
+for {a in i} let weight[a]:=0.5/(scen-1);
+let weight[1]:=0.5;
+
+param sccmean {f};
+
+
+for {t in 0..T-1} let sccmean[t]:=sum {a in i} sccresults[t,a]/n;
+param sccsd{f};
+for {t in 0..T-1} let sccsd[t]:=sqrt((sum{a in i} (sccresults[t,a]-sccmean[t])^2)/(n-1));
+
+param sccpmean {f};
+
+
+for {t in 0..T-1} let sccpmean[t]:=sum {a in i} sccpresults[t,a]/n;
+param sccpsd{f};
+for {t in 0..T-1} let sccpsd[t]:=sqrt((sum{a in i} (sccpresults[t,a]-sccpmean[t])^2)/(n-1));
+
+param Kmean {f};
+
+
+for {t in 0..T-1} let Kmean[t]:=sum {a in i} Kresults[t,a]/n;
+param Ksd{f};
+for {t in 0..T-1} let Ksd[t]:=sqrt((sum{a in i} (Kresults[t,a]-Kmean[t])^2)/(n-1));
+
+param Emean {f};
+
+
+for {t in 0..T-1} let Emean[t]:=sum {a in i} Eresults[t,a]/n;
+param Esd{f};
+for {t in 0..T-1} let Esd[t]:=sqrt((sum{a in i} (Eresults[t,a]-Emean[t])^2)/(n-1));
+
+param mumean {f};
+
+
+for {t in 0..T-1} let mumean[t]:=sum {a in i} muresults[t,a]/n;
+param musd{f};
+for {t in 0..T-1} let musd[t]:=sqrt((sum{a in i} (muresults[t,a]-mumean[t])^2)/(n-1));
+
+param Catmmean {f};
+
+
+for {t in 0..T-1} let Catmmean[t]:=sum {a in i} Catmresults[t,a]/n;
+param Catmsd{f};
+for {t in 0..T-1} let Catmsd[t]:=sqrt((sum{a in i} (Catmresults[t,a]-Catmmean[t])^2)/(n-1));
+
+param Tempmean {f};
+
+
+for {t in 0..T-1} let Tempmean[t]:=sum {a in i} Tempresults[t,a]/n;
+param Tempsd{f};
+for {t in 0..T-1} let Tempsd[t]:=sqrt((sum{a in i} (Tempresults[t,a]-Tempmean[t])^2)/(n-1));
+
+param Imean {f};
+
+
+for {t in 0..T-1} let Imean[t]:=sum {a in i} Iresults[t,a]/n;
+param Isd{f};
+for {t in 0..T-1} let Isd[t]:=sqrt((sum{a in i} (Iresults[t,a]-Imean[t])^2)/(n-1));
+
+param Cmean {f};
+
+
+for {t in 0..T-1} let Cmean[t]:=sum {a in i} Cresults[t,a]/n;
+param Csd{f};
+for {t in 0..T-1} let Csd[t]:=sqrt((sum{a in i} (Cresults[t,a]-Cmean[t])^2)/(n-1));
+
+param Qgmean {f};
+
+
+for {t in 0..T-1} let Qgmean[t]:=sum {a in i} Qgresults[t,a]/n;
+param Qgsd{f};
+for {t in 0..T-1} let Qgsd[t]:=sqrt((sum{a in i} (Qgresults[t,a]-Qgmean[t])^2)/(n-1));
+
+param Qnmean {f};
+
+
+for {t in 0..T-1} let Qnmean[t]:=sum {a in i} Qnresults[t,a]/n;
+param Qnsd{f};
+for {t in 0..T-1} let Qnsd[t]:=sqrt((sum{a in i} (Qnresults[t,a]-Qnmean[t])^2)/(n-1));
+
+
+
+option print_separator "\t";
+printf "T, year, m_scc, sd_ssc, m_sccp, sd_sccp, m_mu, sd_mu, m_EInd_GtC, sd_EInd_GtC, m_Catm, sd_Catm, m_Temp, sd_Temp, m_I, sd_I, m_K, sd_K, m_C, sd_C, m_Qg, sd_Qg, m_Qn, sd_Qn\n">results_Sterner_fix.csv;
+
+printf {t in 0..T-1} "%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f\n", 
+
+t, 
+1950+t,
+sccmean[t],
+sccsd[t],
+sccpmean[t],
+sccpsd[t],
+mumean[t],
+musd[t],
+Emean[t],
+Esd[t],
+Catmmean[t],
+Catmsd[t],
+Tempmean[t],
+Tempsd[t],
+Imean[t],
+Isd[t],
+Kmean[t],
+Ksd[t],
+Cmean[t],
+Csd[t],
+Qgmean[t],
+Qgsd[t],
+Qnmean[t],
+Qnsd[t]>results_Sterner_fix.csv;
+
