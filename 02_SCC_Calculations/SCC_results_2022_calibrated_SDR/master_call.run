@@ -1,0 +1,3 @@
+include R_DICE_SCC_Nordhaus.run;
+include R_DICE_SCC_Sterner.run;
+include R_DICE_SCC_Weitzman.run;

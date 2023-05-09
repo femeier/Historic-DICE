@@ -1,0 +1,234 @@
+reset;
+option solver knitroampl;
+
+
+
+
+#option solver "/home/mq77hucu/Programme/Artelys/knitro-12.1.1-Linux-64/knitroampl/knitroampl";
+
+
+#option knitro_options "algorithm=2 bar_switchrule=2 bar_murule=4 bar_initpt=3 bar_penaltyrule=2 #bar_penaltycons=1 linsolver=2";
+
+#tuner=1";
+
+
+option knitro_options "algorithm=1 bar_initpt=3 maxit=3000 bar_murule=4 bar_penaltycons=1 bar_penaltyrule=2 bar_switchrule=2 linsolver=2";
+
+
+model DICE2016_Fair_Geoffroy_SCC.mod;
+
+
+
+
+#param n:=2; #number of iterations; needs to be 2018-1959: 59
+
+
+
+let i:={1..6};
+let gamma:=0.36507;
+let deltaK:=0.0369791;
+
+let Psi:=0.00236; # damage quadratic term 
+
+let Psi2:=0; #0.007438;
+
+let Psi3:=0;
+
+
+
+let Tbar:=20;
+
+
+
+#param a{f}>0;
+
+#param b{f}>0;
+
+
+#Time Series of initial values
+
+param Qgross0ini{f}>=0; 
+
+param K0ini{f}>=0; 		
+
+param I0ini{f}>=0;
+
+param R10ini{f}>=0; 		
+
+param R20ini{f}>=0; 		
+
+param R30ini{f}>=0; 		
+
+param R40ini{f}>=0; 		
+
+param CCA0ini{f}>=0;		
+
+param TMF0ini{f}; 		
+
+param TMS0ini{f};		
+
+param TDF0ini{f};		
+
+param TDS0ini{f};		
+
+param alpha0ini{f}>=0; 	
+
+param dalpha0ini{f}>=0; 	
+
+param EInd0ini{f}>=0;
+
+
+
+table params IN "amplxl" "mu_observed.xlsx" "params":f<- [f], year, muo;
+
+table inis IN "amplxl" "startvalues_Nordhaus.xlsx" "inis":f<- [f], Qgross0ini, K0ini, I0ini, R10ini, R20ini, R30ini, R40ini, CCA0ini, TMF0ini, TMS0ini, TDF0ini, TDS0ini, alpha0ini, dalpha0ini, EInd0ini;
+
+
+
+#load "/home/mq77hucu/Arbeit/Publikationen/Climate/Historic_DICE/AMPL/Calibration_Welfare/amplxl.dll";
+
+
+
+load amplxl.dll;
+
+read table params;
+
+read table inis;
+
+
+table L_params IN "amplxl" "L_external.xlsx"  "2D": [f, i], L;
+
+
+read table L_params;
+
+
+
+table A_params IN "amplxl" "TFP_Nordhaus_external.xlsx"  "2D": [f, i], A;
+
+
+read table A_params;
+
+
+table sigma_params IN "amplxl" "sigma_Nordhaus_external.xlsx"  "2D": [f, i], sigma;
+
+read table sigma_params;
+
+
+table pback_params IN "amplxl" "pback_external.xlsx"  "2D": [f, i], pback;
+
+
+read table pback_params;
+
+
+table Fex_params IN "amplxl" "F_external.xlsx"  "2D": [f, i], Fex;
+
+
+read table Fex_params;
+
+
+table Eland_params IN "amplxl" "EL_external.xlsx"  "2D": [f, i], Eland;
+
+
+read table Eland_params;
+
+
+#table deltaK_params IN "amplxl" "deltaK_external.xlsx"  "2D": [f, i], deltaK;
+
+
+#read table deltaK_params;
+
+
+
+
+
+#let Qgross0:=Qgross0ini[0]; 
+
+let K0:=K0ini[0]; 		
+
+let I0:=I0ini[0];
+
+let R10:=R10ini[0]; 		
+
+let R20:=R20ini[0]; 		
+
+let R30:=R30ini[0]; 		
+
+let R40:=R40ini[0]; 		
+
+let CCA0:=CCA0ini[0];		
+
+let TMF0:=TMF0ini[0]; 		
+
+let TMS0:=TMS0ini[0];		
+
+let TDF0:=TDF0ini[0];		
+
+let TDS0:=TDS0ini[0];		
+
+let alpha0:=alpha0ini[0]; 	
+
+let dalpha0:=dalpha[0]; 	
+
+
+
+
+#fix {t in 1..58} I[t]:=I0ini[t];
+
+
+fix {t in 0..68} mu[t]:=muo[t];
+
+
+
+
+
+# let rho:=0.002017;
+
+# let eta:=1.1;
+
+
+# solve;
+
+
+
+#printf {t in 0..T} "%d\t%f\t%f\t%f\n", t,Qgross[t]/L[t,1],K[t],C[t]/L[t,1]>out.csv;
+
+
+
+#let rho:=0.0003;
+#let eta:=1.003;
+#solve;
+#printf "%f,%f,%f\n", eta, rho, K[69]>out17.csv;
+
+
+
+for {de in 1.5..1.1 by -0.005} 
+{
+for {dr in 0.05..0.025 by -0.001}
+
+{
+let rho:=dr;
+
+let eta:=de;
+
+
+solve;
+
+
+
+
+#for {de in 1.45..1.1 by -0.05} 
+#{for {dr in 0.015..0 by -0.001}
+#{
+#let rho:=dr;
+#let eta:=de;
+
+solve;
+
+
+
+printf "%f,%f,%f\n", eta, rho, K[69]>out_kappa2.csv;
+}
+printf "\n">out_combinations_eta_delta.csv;
+
+}
+
